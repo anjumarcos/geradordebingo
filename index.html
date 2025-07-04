@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Gerador de Bingo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    table {
+      border-collapse: collapse;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      page-break-inside: avoid;
+    }
+    td {
+      border: 1px solid #333;
+      width: 80px;
+      height: 80px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 18px;
+    }
+    img {
+      max-width: 60px;
+      max-height: 60px;
+    }
+    .controls {
+      margin-bottom: 10px;
+    }
+    .cartela {
+      display: inline-block;
+      margin: 10px;
+      border: 2px solid #000;
+      padding: 10px;
+      text-align: center;
+    }
+    .cartela-title {
+      font-size: 20px;
+      margin-bottom: 5px;
+    }
+    .footer {
+      text-align: center;
+      font-size: 14px;
+      color: #555;
+      margin-top: 30px;
+    }
+    @media print {
+      body {
+        padding: 0;
+      }
+      .controls, .print-btn {
+        display: none;
+      }
+      .cartela {
+        page-break-inside: avoid;
+      }
+      .footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Gerador de Bingo</h1>
+  <div class="controls">
+    <label>Linhas:
+      <input type="number" id="rows" value="5" min="1">
+    </label>
+    <label>Colunas:
+      <input type="number" id="cols" value="5" min="1">
+    </label>
+    <label>Modo:
+      <select id="mode">
+        <option value="numbers">Números</option>
+        <option value="words">Palavras</option>
+      </select>
+    </label>
+    <br><br>
+    <label>Imagem Central (URL):
+      <input type="text" id="imageURL" placeholder="https://...">
+    </label>
+    <br><br>
+    <label>Palavras (separadas por vírgula):
+      <input type="text" id="wordsInput" placeholder="Ex: casa, bola, árvore...">
+    </label>
+    <br><br>
+    <label>Quantidade de Cartelas:
+      <input type="number" id="numCards" value="1" min="1">
+    </label>
+    <br><br>
+    <label>Título da Cartela:
+      <input type="text" id="cardTitle" placeholder="Ex: Bingo da Festa Junina">
+    </label>
+    <br><br>
+    <button onclick="generateBingo()">Gerar Bingo</button>
+    <button onclick="window.print()" class="print-btn">Imprimir / Salvar como PDF</button>
+  </div>
+
+  <div id="bingoContainer"></div>
+
+  <div class="footer">
+    Gerador de Bingo desenvolvido por Ângelo Chaves
+  </div>
+
+  <script>
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function generateBingo() {
+      const rows = parseInt(document.getElementById('rows').value);
+      const cols = parseInt(document.getElementById('cols').value);
+      const mode = document.getElementById('mode').value;
+      const imageURL = document.getElementById('imageURL').value.trim();
+      const wordsInput = document.getElementById('wordsInput').value.trim();
+      const numCards = parseInt(document.getElementById('numCards').value);
+      const cardTitle = document.getElementById('cardTitle').value.trim();
+
+      const totalCells = rows * cols;
+      let baseValues = [];
+
+      if (mode === "numbers") {
+        for (let i = 1; i <= totalCells; i++) {
+          baseValues.push(i);
+        }
+      } else {
+        if (!wordsInput) {
+          alert("Por favor, insira as palavras separadas por vírgula.");
+          return;
+        }
+        baseValues = wordsInput.split(",").map(w => w.trim());
+        if (baseValues.length < totalCells) {
+          alert("Quantidade de palavras insuficiente para preencher todas as casas.");
+          return;
+        }
+      }
+
+      let allCardsHTML = "";
+
+      for (let card = 0; card < numCards; card++) {
+        let values = shuffle([...baseValues]);
+
+        let tableHTML = '<div class="cartela">';
+        if (cardTitle) {
+          tableHTML += `<div class="cartela-title">${cardTitle}</div>`;
+        }
+        tableHTML += '<table>';
+        for (let r = 0; r < rows; r++) {
+          tableHTML += '<tr>';
+          for (let c = 0; c < cols; c++) {
+            const idx = r * cols + c;
+            const isCenter = (r === Math.floor(rows/2) && c === Math.floor(cols/2) && imageURL);
+            tableHTML += '<td>';
+            if (isCenter) {
+              tableHTML += `<img src="${imageURL}" alt="Imagem Central">`;
+            } else {
+              tableHTML += values[idx];
+            }
+            tableHTML += '</td>';
+          }
+          tableHTML += '</tr>';
+        }
+        tableHTML += '</table></div>';
+
+        allCardsHTML += tableHTML;
+      }
+
+      document.getElementById('bingoContainer').innerHTML = allCardsHTML;
+    }
+  </script>
+</body>
+</html>
