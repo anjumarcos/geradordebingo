@@ -85,8 +85,8 @@
       <input type="text" id="imageURL" placeholder="https://...">
     </label>
     <br><br>
-    <label>Palavras (separadas por vírgula):
-      <input type="text" id="wordsInput" placeholder="Ex: casa, bola, árvore...">
+    <label>Palavras (uma por linha):<br>
+      <textarea id="wordsInput" placeholder="Digite uma palavra por linha" rows="5" cols="40"></textarea>
     </label>
     <br><br>
     <label>Quantidade de Cartelas:
@@ -104,7 +104,7 @@
   <div id="bingoContainer"></div>
 
   <div class="footer">
-    Gerador de Bingo desenvolvido por Ângelo Chaves
+    Bingo desenvolvido por Ângelo Chaves
   </div>
 
   <script>
@@ -134,10 +134,10 @@
         }
       } else {
         if (!wordsInput) {
-          alert("Por favor, insira as palavras separadas por vírgula.");
+          alert("Por favor, insira as palavras (uma por linha).");
           return;
         }
-        baseValues = wordsInput.split(",").map(w => w.trim());
+        baseValues = wordsInput.split(/\r?\n/).map(w => w.trim()).filter(w => w);
         if (baseValues.length < totalCells) {
           alert("Quantidade de palavras insuficiente para preencher todas as casas.");
           return;
@@ -158,7 +158,7 @@
           tableHTML += '<tr>';
           for (let c = 0; c < cols; c++) {
             const idx = r * cols + c;
-            const isCenter = (r === Math.floor(rows/2) && c === Math.floor(cols/2) && imageURL);
+            const isCenter = (r === Math.floor(rows / 2) && c === Math.floor(cols / 2) && imageURL);
             tableHTML += '<td>';
             if (isCenter) {
               tableHTML += `<img src="${imageURL}" alt="Imagem Central">`;
@@ -170,7 +170,6 @@
           tableHTML += '</tr>';
         }
         tableHTML += '</table></div>';
-
         allCardsHTML += tableHTML;
       }
 
