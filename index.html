@@ -21,6 +21,7 @@
       text-align: center;
       vertical-align: middle;
       font-size: 18px;
+      background-color: rgba(255,255,255,0.9);
     }
     img {
       max-width: 60px;
@@ -35,10 +36,17 @@
       border: 2px solid #000;
       padding: 10px;
       text-align: center;
+      position: relative;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
     }
     .cartela-title {
       font-size: 20px;
       margin-bottom: 5px;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: inline-block;
+      padding: 2px 8px;
     }
     .footer {
       text-align: center;
@@ -81,8 +89,14 @@
       </select>
     </label>
     <br><br>
-    <label>Imagem Central (URL):
+    <label>Imagem (URL):
       <input type="text" id="imageURL" placeholder="https://...">
+    </label>
+    <label>Posição da imagem:
+      <select id="imagePosition">
+        <option value="center">Centro da cartela</option>
+        <option value="background">Fundo como marca d'água</option>
+      </select>
     </label>
     <br><br>
     <label>Palavras (uma por linha):<br>
@@ -104,7 +118,7 @@
   <div id="bingoContainer"></div>
 
   <div class="footer">
-    Bingo desenvolvido por Ângelo Chaves
+    Gerador de Bingo desenvolvido por Ângelo Chaves
   </div>
 
   <script>
@@ -121,6 +135,7 @@
       const cols = parseInt(document.getElementById('cols').value);
       const mode = document.getElementById('mode').value;
       const imageURL = document.getElementById('imageURL').value.trim();
+      const imagePosition = document.getElementById('imagePosition').value;
       const wordsInput = document.getElementById('wordsInput').value.trim();
       const numCards = parseInt(document.getElementById('numCards').value);
       const cardTitle = document.getElementById('cardTitle').value.trim();
@@ -149,7 +164,12 @@
       for (let card = 0; card < numCards; card++) {
         let values = shuffle([...baseValues]);
 
-        let tableHTML = '<div class="cartela">';
+        let style = '';
+        if (imageURL && imagePosition === 'background') {
+          style = `style="background-image: url('${imageURL}');"`;
+        }
+
+        let tableHTML = `<div class="cartela" ${style}>`;
         if (cardTitle) {
           tableHTML += `<div class="cartela-title">${cardTitle}</div>`;
         }
@@ -158,7 +178,12 @@
           tableHTML += '<tr>';
           for (let c = 0; c < cols; c++) {
             const idx = r * cols + c;
-            const isCenter = (r === Math.floor(rows / 2) && c === Math.floor(cols / 2) && imageURL);
+            const isCenter = (
+              r === Math.floor(rows / 2) &&
+              c === Math.floor(cols / 2) &&
+              imageURL &&
+              imagePosition === 'center'
+            );
             tableHTML += '<td>';
             if (isCenter) {
               tableHTML += `<img src="${imageURL}" alt="Imagem Central">`;
